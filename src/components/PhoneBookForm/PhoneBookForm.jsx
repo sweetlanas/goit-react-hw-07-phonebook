@@ -1,16 +1,18 @@
-import { connect, useDispatch } from "react-redux";
+import { connect } from "react-redux";
 import s from "./PhoneBookForm.module.css";
 import actions from "../../redux/actions";
 import { useState } from "react";
-import { useAddContactsMutation } from "../../redux/rtk/contacts-api";
+import {
+  useAddContactsMutation,
+  useGetContactsQuery,
+} from "../../redux/rtk/contacts-api";
 
-function PhoneBookForm({ contacts }) {
-  const dispatch = useDispatch();
-
+function PhoneBookForm() {
   const [name, setName] = useState("");
   const [number, setNumber] = useState("");
 
   const [addContact] = useAddContactsMutation();
+  const { data } = useGetContactsQuery();
 
   const handleSetUserInfo = (e) => {
     switch (e.target.name) {
@@ -30,13 +32,13 @@ function PhoneBookForm({ contacts }) {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    if (data.some((el) => el.name === name)) {
+      alert(` ${name} is already in contacts!`);
+      setName("");
+      setNumber("");
+      return;
+    }
     addContact({ name, number });
-
-    // if (contacts.some((el) => el.name === name)) {
-    //   alert(` ${name} is already in contacts!`);
-    //   return;
-    // }
-    dispatch(actions.addContact({ name, number }));
     setName("");
     setNumber("");
   };
